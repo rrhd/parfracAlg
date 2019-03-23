@@ -1,0 +1,54 @@
+restart;
+#Worksheet to get partial fraction representation of polynomial division problem
+#Generates random highest order in denominator
+
+n := LinearAlgebra:-RandomVector[row](1, generator = rand(2 .. 13))[1];
+
+#Generates coefficients for polynomial
+
+c := LinearAlgebra:-RandomVector[row](n+1, generator = rand(-10 .. 10));
+
+#Function to create vector of powers of x
+
+f := proc (i, j) options operator, arrow; x^(i-1) end proc;
+
+#Vector of powers of x
+
+X := Matrix(n+1, 1, f);
+
+#Power of numerator, maximum is one less than denominator 
+
+m := LinearAlgebra:-RandomVector[row](1, generator = rand(1 .. n-1))[1];
+
+#List of coefficients for numerator
+k := LinearAlgebra:-RandomVector[row](m+1, generator = rand(-10 .. 10));
+
+#Denominator polynomial
+p1 := (Matrix(c) . X)[1][1];
+
+# #Numerator polynomial
+q1 := (Matrix(k) . X[1 .. m+1])[1][1];
+
+# #Initializing algorithm
+p := p1;
+
+q := q1;
+
+#Difference in polynomial degrees
+
+degDiff := degree(p, x)-degree(q, x);
+
+#While loop to iteratively find remainder in polynomial quotient
+s := 0:
+while degDiff >= 0 do 
+	m := coeff(p, x^degree(p, x))*x^degDiff/coeff(q, x^degree(q, x)): 
+	s := s+m: 
+	p := expand(-m*q+p): 
+	degDiff := degree(p, x)-degree(q, x): 
+end do:
+
+#Result of polynomial division
+s := s+p/q;
+
+#Comparison to native algorithm
+convert(p1/q1, 'parfrac', x);
